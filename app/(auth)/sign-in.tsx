@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -10,9 +11,11 @@ import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "../../constants";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import * as Yup from "yup";
 import { Formik } from "formik";
+import { getCurrentUser } from "@/lib/appwrite";
+import { useGlobalContext } from "@/context/GlobalProvider";
 const signInpschema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
@@ -23,6 +26,7 @@ const signInpschema = Yup.object({
 });
 
 const SignIn = () => {
+  const { setUser, setIsLogged } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -41,8 +45,19 @@ const SignIn = () => {
           <Formik
             initialValues={{ email: "", password: "" }}
             validationSchema={signInpschema}
-            onSubmit={(values) => {
-              console.log(values);
+            onSubmit={async (values) => {
+              if (!values) return;
+              setisSubmitting(true);
+              try {
+                const result = await getCurrentUser();
+                setUser(result);
+                setIsLogged(true);
+                router.replace("/home");
+              } catch (error) {
+                Alert.alert("Error", error as string);
+              } finally {
+                setisSubmitting(false);
+              }
             }}
           >
             {({

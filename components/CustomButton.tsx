@@ -4,8 +4,8 @@ type Props = {
   title: string;
   handlePress: () => void;
   containerStyles: string;
-  isLoading: boolean;
-  textStyles: string;
+  isLoading?: boolean;
+  textStyles?: string;
 };
 const CustomButton = ({
   title,

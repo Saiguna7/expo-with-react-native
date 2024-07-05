@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -11,16 +12,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "../../constants";
 import * as Yup from "yup";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Formik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+import { createUser } from "@/lib/appwrite";
+import { useGlobalContext } from "@/context/GlobalProvider";
 const signUpschema = Yup.object({
   username: Yup.string()
     .min(3, "Username must be at least 3 characters")
     .required("Enter UserName"),
   email: Yup.string().email("Invalid email").required("Enter Your Email"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
+    .min(8, "Password must be at least 8 characters")
     .required("Enter Your Password"),
   confirmpassword: Yup.string()
     .oneOf([Yup.ref("password"), undefined], "Passwords must match")
@@ -30,6 +32,7 @@ const SignUp = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showCPassword, setShowCPassword] = useState(false);
+  const { setUser, setIsLogged } = useGlobalContext();
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
@@ -50,8 +53,18 @@ const SignUp = () => {
               username: "",
             }}
             validationSchema={signUpschema}
-            onSubmit={(values) => {
-              console.log(values);
+            onSubmit={async (values) => {
+              setisSubmitting(true);
+              try {
+                const result = await createUser(values);
+                setUser(result);
+                setIsLogged(true);
+                router.replace("/home");
+              } catch (error) {
+                Alert.alert("Error", error as string);
+              } finally {
+                setisSubmitting(false);
+              }
             }}
           >
             {({
