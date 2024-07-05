@@ -46,8 +46,8 @@ export const createUser=async ({email,password,username}:Props)=>{
       const avatarUrl=avatars.getInitials(username)
       await signIn({email,password})
       const newUSer=await databases.createDocument(
-      Config.databaseId,
-      Config.userCollectionId,
+      databaseId,
+      userCollectionId,
       ID.unique(),
       {
         accountId:newAccount.$id  ,
@@ -71,7 +71,7 @@ export const signIn=async ({email,password}:SignInPops)=> {
 
     }catch(error){
         console.log(error)
-        throw new Error(error as string) 
+        throw new Error(error ) 
     }
 }
 
@@ -82,8 +82,8 @@ export const getCurrentUser=async()=>{
         if(!currentAccount) throw Error;
         
         const currentuser=await databases.listDocuments(
-            Config.databaseId,
-            Config.userCollectionId,
+            databaseId,
+            userCollectionId,
             [Query.equal('accountId',currentAccount.$id)]
         )
         if(!currentuser) throw Error
@@ -102,7 +102,7 @@ export const getAllPosts=async()=>{
         return posts.documents;
     }catch(error){
         console.log(error)
-        throw new Error(error as string)
+        throw new Error(error )
     }
 }
 
@@ -130,6 +130,30 @@ export const searchPosts=async(query:any)=>{
         return posts.documents;
     }catch(error){
         console.log(error)
-        throw new Error(error as string)
+        throw new Error(error )
+    }
+}
+
+export const getUserPosts=async(userId:string)=>{
+    try{
+        const posts=await databases.listDocuments(
+            databaseId,
+            videoCollectionId,
+            [Query.equal('creator',userId)]
+        )
+        return posts.documents;
+    }catch(error){
+            throw new Error(error )
+    }
+}
+
+export const signOut=async()=>{
+
+    try{
+const session=await account.deleteSession
+('current')
+return session
+    }catch(error){
+throw new Error(error )
     }
 }

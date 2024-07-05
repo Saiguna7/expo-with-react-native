@@ -46,10 +46,10 @@ const SignIn = () => {
             initialValues={{ email: "", password: "" }}
             validationSchema={signInpschema}
             onSubmit={async (values) => {
-              if (!values) return;
               setisSubmitting(true);
               try {
                 const result = await getCurrentUser();
+                console.log(result);
                 setUser(result);
                 setIsLogged(true);
                 router.replace("/home");
